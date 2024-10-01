@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 
+// Huvudkomponenten för att hantera meddelanden, både publicering och redigering
 const App = () => {
+  // State-variabler för att hantera användarens input, meddelanden och redigeringsläge
   const [messages, setMessages] = useState([]);
   const [username, setUsername] = useState("");
   const [text, setText] = useState("");
@@ -10,13 +12,14 @@ const App = () => {
   const [updatedText, setUpdatedText] = useState("");
   const [showModal, setShowModal] = useState(false);
 
-  const apiUrl =
-    "https://jdjkvxagu1.execute-api.eu-north-1.amazonaws.com/dev/messages";
+  const apiUrl = "https://jdjkvxagu1.execute-api.eu-north-1.amazonaws.com/dev/messages";
 
+  // Hämta alla meddelanden från API:t när komponenten laddas
   useEffect(() => {
     fetchMessages();
   }, []);
 
+  // Hämtar meddelanden från API:t och uppdaterar state
   const fetchMessages = async () => {
     try {
       const response = await axios.get(apiUrl);
@@ -26,12 +29,13 @@ const App = () => {
     }
   };
 
+  // Publicera ett nytt meddelande och uppdatera listan med meddelanden
   const handlePublish = async () => {
     if (username && text) {
       try {
         const newMessage = { username, text };
         await axios.post(apiUrl, newMessage);
-        fetchMessages();
+        fetchMessages(); // Uppdatera meddelandelistan efter publicering
         setUsername("");
         setText("");
       } catch (error) {
@@ -42,45 +46,44 @@ const App = () => {
     }
   };
 
+  // Starta redigering av ett meddelande
   const handleEdit = (message) => {
     setIsEditing(true);
     setCurrentMessage(message);
     setUpdatedText(message.text);
-    setShowModal(true); // Öppna modalrutan
+    setShowModal(true); // Visa modalrutan för redigering
   };
 
+  // Spara ändringar på ett redigerat meddelande och uppdatera listan
   const handleUpdate = async () => {
     if (updatedText) {
       try {
-        await axios.put(
-          `${apiUrl}/${currentMessage.username}/${currentMessage.id}`,
-          {
-            text: updatedText,
-          }
-        );
+        await axios.put(`${apiUrl}/${currentMessage.username}/${currentMessage.id}`, { text: updatedText });
         setIsEditing(false);
         setCurrentMessage(null);
         setUpdatedText("");
         setShowModal(false); // Stäng modalrutan
-        fetchMessages();
+        fetchMessages(); // Uppdatera meddelandelistan efter uppdatering
       } catch (error) {
         console.error("Error updating message:", error);
       }
     }
   };
 
+  // Stäng modalrutan utan att spara
   const closeModal = () => {
     setIsEditing(false);
     setCurrentMessage(null);
     setUpdatedText("");
-    setShowModal(false); // Stäng modalrutan
+    setShowModal(false);
   };
 
+  // Returnerar layouten för sidan med textruta, meddelandelista och modal för redigering
   return (
     <div style={styles.container}>
       <h1 style={styles.heading}>The Message</h1>
 
-      {/* Publiceringssektionen för nytt meddelande */}
+      {/* Input för nytt meddelande */}
       <div style={styles.inputContainer}>
         <textarea
           style={styles.textArea}
@@ -125,7 +128,7 @@ const App = () => {
         )}
       </div>
 
-      {/* Modal-rutan för att redigera meddelandet */}
+      {/* Modal för att redigera ett meddelande */}
       {showModal && (
         <div style={styles.modalOverlay}>
           <div style={styles.modal}>
@@ -148,7 +151,7 @@ const App = () => {
   );
 };
 
-// Stilar för layout och element
+// Stilar för layout och design
 const styles = {
   container: {
     backgroundColor: "#19274A",
@@ -167,7 +170,7 @@ const styles = {
   inputContainer: {
     marginBottom: "20px",
     width: "100%",
-    maxWidth: "600px", // Begränsar bredden på input-området
+    maxWidth: "600px",
     textAlign: "center",
   },
   textArea: {
@@ -214,7 +217,7 @@ const styles = {
   messageList: {
     marginTop: "20px",
     width: "100%",
-    maxWidth: "590px", // 10px mindre än tidigare (600px - 10px)
+    maxWidth: "590px",
   },
   messageCard: {
     backgroundColor: "white",
@@ -264,8 +267,8 @@ const styles = {
     textAlign: "center",
     maxWidth: "400px",
     width: "100%",
-    position: "relative", // För att möjliggöra centrerad positionering
-    top: "-50px", // Flyttar popup-modalen 50px uppåt från meddelandekorten
+    position: "relative",
+    top: "-50px",
   },
 };
 
